@@ -1,0 +1,29 @@
+# Node.js / Next.js
+node_modules/
+.next/
+dist/
+coverage/
+
+# Spring Boot / Java
+target/
+build/
+.gradle/
+*.class
+
+# 환경변수 및 비밀정보
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 로그 및 압축파일
+*.log
+*.zip
+
+# 개발 환경
+.vscode/
+.idea/
+
+# Spring Boot 비밀 설정 파일 제외
+**/src/main/resources/application.properties

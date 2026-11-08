@@ -1,0 +1,6 @@
+/* 이 CSS Module을 가져오는 컴포넌트의 message 클래스에만 스타일을 적용한다. */
+.message {
+  background-color: green;
+  color: yellow;
+  font-size: 24px;
+}

@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": "back-end"
+		},
+		{
+			"path": "back-end-homework"
+		},
+		{
+			"path": "database"
+		},
+		{
+			"path": "database-homework"
+		},
+		{
+			"path": "node-app-test"
+		},
+		{
+			"path": "front-end"
+		},
+		{
+			"path": "front-end-homework"
+		}
+	],
+	"settings": {
+		"java.compile.nullAnalysis.mode": "disabled",
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}
