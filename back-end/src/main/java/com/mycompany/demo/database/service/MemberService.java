@@ -3,6 +3,8 @@ package com.mycompany.demo.database.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mycompany.demo.database.dao.MemberDao;
@@ -29,6 +31,11 @@ public class MemberService {
     }
 
     public void join(Member member) {
+        // password 암호화
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        member.setPassword(passwordEncoder.encode(member.getPassword()));
+
+        // DB에 저장
         memberDao.insert(member);
     }
 

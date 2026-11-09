@@ -16,12 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mycompany.demo.database.dto.JoinMemberRequest;
+import com.mycompany.demo.database.dto.MemberLoginRequest;
+import com.mycompany.demo.database.dto.MemberLoginResponse;
 import com.mycompany.demo.database.dto.MemberResponse;
 import com.mycompany.demo.database.dto.Pager;
 import com.mycompany.demo.database.dto.UpdateMemberRequest;
 import com.mycompany.demo.database.entity.Member;
 import com.mycompany.demo.database.service.MemberService;
-import com.mycompany.demo.exception.NoAccountException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,6 +56,8 @@ public class MemberController {
         );
         return memberResponse;
     }
+
+
 
     @PostMapping("/join-member")
     public MemberResponse joinMember(@RequestBody JoinMemberRequest joinMemberRequest) {
@@ -138,4 +141,13 @@ public class MemberController {
         );
         return map;
     }
+
+    @PostMapping("/login-member")
+    public MemberLoginResponse loginMember(@RequestBody MemberLoginRequest request) {
+        log.info(request.toString());
+
+        return null;
+    }
+    
+    
 }
