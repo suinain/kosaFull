@@ -53,7 +53,7 @@ public class JwtService {
         return jwt;
     }
 
-    public void validateJwt(String jwt) {
+    public boolean validateJwt(String jwt) {
         // JWT 해석자를 생성
         JwtParser jwtParder = Jwts.parser()
                                 .verifyWith(secretKey)
@@ -61,6 +61,7 @@ public class JwtService {
         // JWT를 해석해서 크레임을 생성(3가지 예외가  발생할 수 있음)
         Jws<Claims> jws = jwtParder.parseSignedClaims(jwt);
         // 여기까지가 성공되면 유효한 JWT라고 하자.
+        return true;
     }
 
     public Map<String, String> getClaims(String jwt) {

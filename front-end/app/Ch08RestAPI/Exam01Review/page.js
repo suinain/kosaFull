@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { getReviewList } from "@/apis/reviewApi";
 import Link from "next/link";
+import { AuthContext } from "@/contexts/AuthContext";
 
 export default function Exam01Review() {
   const [reviews, setReviews] = useState([]);
@@ -35,6 +36,11 @@ export default function Exam01Review() {
 
   }, [pageNo]);
 
+  // authConext 전역상태 얻기
+  const authContext = useContext(AuthContext);
+
+
+
   return (
     <section className="min-w-0 w-full rounded-lg border border-zinc-200 bg-white text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
       <header className="rounded-t-lg border-b border-zinc-200 bg-zinc-100 px-4 py-1 dark:border-zinc-700 dark:bg-zinc-800">
@@ -46,9 +52,11 @@ export default function Exam01Review() {
             <caption className="pb-3 text-left">
               <div className="flex items-center justify-between">
                 <span className="font-semibold">상품 후기 게시판</span>
-                <Link href="/Ch08RestAPI/Exam01Review/ReviewWrite" className="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
-                  글쓰기
-                </Link>
+                { authContext.memberId &&
+                  <Link href="/Ch08RestAPI/Exam01Review/ReviewWrite" className="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
+                    글쓰기
+                  </Link>
+                }
               </div>
             </caption>
             <thead className="bg-zinc-100 dark:bg-zinc-800">
@@ -66,9 +74,13 @@ export default function Exam01Review() {
                 <tr key={review.reviewId} className="border-b border-zinc-200 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
                   <td className="w-px whitespace-nowrap px-3 py-2 text-center">{review.reviewId}</td>
                   <td className="w-full px-3 py-2" title={review.title}>
-                    <Link href={`/Ch08RestAPI/Exam01Review/ReviewDetail?reviewId=${review.reviewId}`} className="text-blue-600 hover:text-orange-600 hover:underline dark:text-blue-400 dark:hover:text-orange-400">
-                      {review.title.length > 30 ? `${review.title.slice(0, 30)}...` : review.title}
-                    </Link>
+                    {authContext.memberId ? (
+                      <Link href={`/Ch08RestAPI/Exam01Review/ReviewDetail?reviewId=${review.reviewId}`} className="text-blue-600 hover:text-orange-600 hover:underline dark:text-blue-400 dark:hover:text-orange-400">
+                        <span>{review.title.length > 30 ? `${review.title.slice(0, 30)}...` : review.title}</span>
+                      </Link>
+                    ) : (
+                      <span>{review.title.length > 30 ? `${review.title.slice(0, 30)}...` : review.title}</span>
+                    )}
                   </td>
                   <td className="w-px whitespace-nowrap px-3 py-2 text-center">{review.writer}</td>
                   <td className="w-px whitespace-nowrap px-3 py-2 text-center">

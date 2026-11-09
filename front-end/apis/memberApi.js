@@ -2,5 +2,13 @@
 import api from "./axios";
 
 export function memberJoin(joinForm) {
+  //body에  raw형식으로 json 형태로 들어감
   return api.post("/database/join-member", joinForm);
+}
+
+
+export function memberLogin(loginForm) {
+  //body에  raw형식으로 json 형태로 들어감
+  return api.post("/database/login-member", loginForm);
+
 }

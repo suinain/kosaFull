@@ -23,41 +23,40 @@ import com.mycompany.demo.database.dto.Pager;
 import com.mycompany.demo.database.dto.UpdateMemberRequest;
 import com.mycompany.demo.database.entity.Member;
 import com.mycompany.demo.database.service.MemberService;
+import com.mycompany.demo.jwt.service.JwtService;
 
 import lombok.extern.slf4j.Slf4j;
 
-
-@RestController 
+@RestController
 @RequestMapping("/database")
-@Slf4j 
+@Slf4j
 public class MemberController {
     private final MemberService memberService;
+    private final JwtService jwtService;
 
-    public MemberController(MemberService memberService) {
+    public MemberController(MemberService memberService, JwtService jwtService) {
         this.memberService = memberService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping("/get-member")
     public MemberResponse getMember(@RequestParam("memberId") String memberId) throws SQLException {
-        if(true) {
-            //throw new RuntimeException("실행 예외 발생");
-            //throw new SQLException("DB에서 예외 발생");
-            //throw new NullPointerException("NullPointerException 발생");
-            //throw new DuplicatedMemberIDException("이미 아이디가 존재함");
-            //throw new NoAccountException("계좌가 존재하지 않음");
+        if (true) {
+            // throw new RuntimeException("실행 예외 발생");
+            // throw new SQLException("DB에서 예외 발생");
+            // throw new NullPointerException("NullPointerException 발생");
+            // throw new DuplicatedMemberIDException("이미 아이디가 존재함");
+            // throw new NoAccountException("계좌가 존재하지 않음");
         }
-        
+
         Member member = memberService.getMember(memberId);
         MemberResponse memberResponse = new MemberResponse(
-            member.getMemberId(),
-            member.getMemberName(),
-            member.getEmail(),
-            member.getJoinedAt()
-        );
+                member.getMemberId(),
+                member.getMemberName(),
+                member.getEmail(),
+                member.getJoinedAt());
         return memberResponse;
     }
-
-
 
     @PostMapping("/join-member")
     public MemberResponse joinMember(@RequestBody JoinMemberRequest joinMemberRequest) {
@@ -75,16 +74,16 @@ public class MemberController {
         memberResponse.setEmail(dbMember.getEmail());
         memberResponse.setJoinedAt(dbMember.getJoinedAt());
         return memberResponse;
-    } 
+    }
 
     @PutMapping("/update-member")
     public Map<String, Object> updateMember(@RequestBody UpdateMemberRequest updateMemberRequest) {
         Member member = new Member();
         member.setMemberId(updateMemberRequest.getMemberId());
         member.setPassword(updateMemberRequest.getPassword());
-        member.setEmail(updateMemberRequest.getEmail());      
+        member.setEmail(updateMemberRequest.getEmail());
         int rows = memberService.updateMember(member);
-        if(rows == 1) {
+        if (rows == 1) {
             // 수정 성공
             Member dbMember = memberService.getMember(updateMemberRequest.getMemberId());
             MemberResponse memberResponse = new MemberResponse();
@@ -107,7 +106,7 @@ public class MemberController {
     @DeleteMapping("/delete-member")
     public Map<String, Object> deleteMember(@RequestParam("memberId") String memberId) {
         int rows = memberService.deleteMember(memberId);
-        if(rows == 1) {
+        if (rows == 1) {
             // 삭제 성공
             Map<String, Object> map = new HashMap<>();
             map.put("status", "success");
@@ -121,33 +120,58 @@ public class MemberController {
     }
 
     @GetMapping("/list-member")
-    public Map<String, Object> listMember(@RequestParam(value="pageNo", defaultValue = "1") int pageNo) {
+    public Map<String, Object> listMember(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo) {
         Map<String, Object> where = null;
         int totalRows = memberService.pagingTotalRows(where);
         Pager pager = new Pager(10, 5, totalRows, pageNo);
         List<Member> list = memberService.listMember(pager, where);
         List<MemberResponse> listMemberResponse = new ArrayList<>();
-        for(Member dbMember: list) {
+        for (Member dbMember : list) {
             MemberResponse memberResponse = new MemberResponse();
             memberResponse.setMemberId(dbMember.getMemberId());
             memberResponse.setMemberName(dbMember.getMemberName());
             memberResponse.setEmail(dbMember.getEmail());
             memberResponse.setJoinedAt(dbMember.getJoinedAt());
             listMemberResponse.add(memberResponse);
-        } 
+        }
         Map<String, Object> map = Map.of(
-            "pager", pager,
-            "data", listMemberResponse
-        );
+                "pager", pager,
+                "data", listMemberResponse);
         return map;
     }
 
     @PostMapping("/login-member")
     public MemberLoginResponse loginMember(@RequestBody MemberLoginRequest request) {
-        log.info(request.toString());
+        // log.info(request.toString());
 
-        return null;
+        // 엔티티로 변환
+        Member m = new Member();
+        m.setMemberId(request.getMemberId());
+        m.setPassword(request.getPassword());
+
+        // 서비스로 로그인 처리 위임
+        String result = memberService.login(m);
+
+        // 응답 생성
+        MemberLoginResponse response = new MemberLoginResponse();
+
+        if (result.equals("success")) {
+            response.setStatus("success");
+            response.setMemberId(request.getMemberId());
+            Member dbMember= memberService.getMember(request.getMemberId());
+
+            String jwt = jwtService.createJwt(dbMember);
+
+            response.setJwt(jwt);
+        } else if (result.equals("wrongMemberId")) {
+            response.setStatus("fail");
+            response.setMessage("아이디가 존재하지 않습니다");
+        } else if (result.equals("wrongPassword")) {
+            response.setStatus("fail");
+            response.setMessage("비밀번호가 틀립니다");
+        } 
+
+        return response;
     }
-    
-    
+
 }

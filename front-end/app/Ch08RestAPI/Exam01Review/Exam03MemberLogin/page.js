@@ -1,47 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { memberLogin } from "@/apis/memberApi";
+import { AuthContext } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { useContext, useState } from "react";
 
 export default function Exam03MemberLogin() {
+  // MemberId 양식의 유효성 검사를 수행하는 함수
   function validateMemberId(value) {
     return value.trim() ? "" : "아이디를 입력해 주세요.";
   }
 
+  // password 양식의 유효성 검사를 수행하는 함수
   function validatePassword(value) {
     return value.trim() ? "" : "비밀번호를 입력해 주세요.";
   }
 
-  //양식별로 생성된 에러 메시지를 저장하는 상태
+  // 양식별로 생성된 에러메시지를 저장하는 상태
   const [errors, setErrors] = useState({});
 
-  //양식의 데이터를 갖는 상태
+  // 양식의 데이터를 갖는 상태
   const [loginForm, setLoginForm] = useState({
     memberId: "",
     password: "",
   });
 
-  //입력값을 상태로 저장하는 함수, 이벤트 처리 함수
+  // 양식의 입력 값을 상태로 저장하는 이벤트 처리 함수 
   const handleChange = (event) => {
-    setLoginForm({...loginForm, [event.target.name]: event.target.value});
+    setLoginForm({ ...loginForm, [event.target.name]: event.target.value });
   };
 
-  //로그인 버튼을 클릭했을 때 이벤트 처리 함수
-  const handleLogin = () => {
-    //입력 양식별로 유효성 검사 함수를 호출해서 반환된 에러메세지를 저장하는 객체
+  // 라우터 얻기
+  const router = useRouter();
+
+  // AuthContext 전역 상태 얻기
+  const authContext = useContext(AuthContext);
+
+  // [로그인] 버튼을 클릭했을때 이벤트 처리 함수
+  const handleLogin = async () => {
+    // 입력 양식별로 유효성 검사 함수를 호출해서 반환된 에러 메시지를 저장하는 객체
     const nextErrors = {
       memberId: validateMemberId(loginForm.memberId),
       password: validatePassword(loginForm.password),
     };
 
-    //에러메세지를 상태에 반영
+    // 에러 메시지를 상태에 반영
     setErrors(nextErrors);
 
-    //값들만 모아서 배열로 만들어라. , 하나라도 T면 T인 some을 가져와라
-    // 에러메세지 중에 하나라도 빈 문자열이 아닌 것이 있을 경우, 함수 실행을 종료
+    // 에러 메시지 중에 하나라도 빈 문자열이 아닌 것이 있을 경우, 함수 실행을 종료
     if (Object.values(nextErrors).some((message) => message)) return;
 
-    //백앤드 api 호출
-    
+    // 백엔드 API 호출 
+    try {
+      const response = await memberLogin(loginForm);
+      if (response.data.status === "success") {
+        // 전역 상태에 로그인 정보 저장
+        authContext.setMemberId(response.data.memberId);
+        authContext.setJwt(response.data.jwt);
+        // 새로고침과 브라우저 재실행 시 복원할 로그인 정보를 로컬스토리지에 저장
+        localStorage.setItem("memberId", response.data.memberId);
+        localStorage.setItem("jwt", response.data.jwt);
+
+        // 홈으로 이동
+        router.push("/");
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
   };
 
   return (

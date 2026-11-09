@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +29,7 @@ import com.mycompany.demo.database.dto.ReviewWriteRequest;
 import com.mycompany.demo.database.dto.ReviewWriteResponse;
 import com.mycompany.demo.database.entity.Review;
 import com.mycompany.demo.database.service.ReviewService;
+import com.mycompany.demo.jwt.service.JwtService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,9 +38,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ReviewController {
     private final ReviewService reviewService;
+    private final JwtService jwtService;
 
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, JwtService jwtService) {
         this.reviewService = reviewService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping("/list")
@@ -89,8 +92,17 @@ public class ReviewController {
         return reviewWriteResponse;
     }
 
-    @GetMapping("/detail")
-    public ReviewDetailResponse detail(@RequestParam("reviewId") long reviewId) {
+    @GetMapping(value = "/detail", headers = "Authorization")
+    public ReviewDetailResponse detail(@RequestHeader("Authorization") String authorization,
+                                        @RequestParam("reviewId") long reviewId) {
+        
+        // Authorization 헤더값에서 jwt 토큰 얻기
+        String jwt = authorization.substring(7);
+        log.info("jwt :  " + jwt);
+
+        // 유효성 검사 - 실패 : 런타임 예외 발생
+        jwtService.validateJwt(jwt);
+
         Review review = reviewService.getReview(reviewId);
         ReviewDetailResponse response = new ReviewDetailResponse();
         response.setReviewId(review.getReviewId());

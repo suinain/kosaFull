@@ -3,13 +3,12 @@ package com.mycompany.demo.database.service;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mycompany.demo.database.dao.MemberDao;
-import com.mycompany.demo.database.entity.Member;
 import com.mycompany.demo.database.dto.Pager;
+import com.mycompany.demo.database.entity.Member;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,6 +56,25 @@ public class MemberService {
     public List<Member> listMember(Pager pager, Map<String,Object> where) {
         List<Member> list = memberDao.selectPage(pager, where);
         return list;
+    }
+
+    public String login(Member m) {
+        //db에서 해당 memberId로 Member 가져오기
+        Member dbMember = memberDao.selectById(m.getMemberId());
+
+        if(dbMember == null)
+            return "wrongMemberId";
+        
+        //암호 비교
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        boolean result = passwordEncoder.matches(m.getPassword(), dbMember.getPassword());
+
+        if(!result){
+            return "wrongPassword";
+        }
+        
+        // 로그인 성공
+        return "success";
     }
 
 }
