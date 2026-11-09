@@ -28,5 +28,5 @@ public interface ReviewDao {
     int update(@Param("review") Review review);
     
     // Delete: 기본키로 삭제하는 메소드(D)
-    int deleteById(@Param("reviewId") String reviewId);
+    int deleteById(@Param("reviewId") long reviewId);
 }

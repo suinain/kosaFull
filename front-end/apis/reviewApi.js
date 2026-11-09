@@ -27,3 +27,13 @@ export function getReviewFileUrl(reviewId, { download, version } = {}) {
 export function reviewUpdate(formData) {
   return api.put("/review/update", formData);
 }
+
+
+export function reviewDelete(reviewId){
+  return api.delete("/review/delete", {
+    data: new URLSearchParams({ reviewId: reviewId }).toString(),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+}

@@ -38,4 +38,8 @@ public class ReviewService {
        return reviewDao.update(review);
     }
 
+    public int delete(String reviewId){
+        long longReviewId = Long.parseLong(reviewId);
+        return reviewDao.deleteById(longReviewId);
+    }
 }

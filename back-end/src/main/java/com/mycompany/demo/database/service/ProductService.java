@@ -88,7 +88,8 @@ public class ProductService {
     }
 
     public int deleteBoard(String boardId) {
-        return reviewDao.deleteById(boardId);
+        long longBoardId = Long.parseLong(boardId);
+        return reviewDao.deleteById(longBoardId);
     }
 
     public List<Review> listBoard(Pager pager, Map<String, Object> where) {

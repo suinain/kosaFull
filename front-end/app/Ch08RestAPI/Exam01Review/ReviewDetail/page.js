@@ -1,10 +1,10 @@
 "use client";
 
-import { getReviewFileUrl, reviewDetail } from "@/apis/reviewApi";
+import { getReviewFileUrl, reviewDetail, reviewDelete } from "@/apis/reviewApi";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useReducer, useState } from "react";
 
 export default function ReviewDetail() {
   const searchParams = useSearchParams();
@@ -32,6 +32,18 @@ export default function ReviewDetail() {
     };
     work();
   }, [reviewId]);
+
+
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    try {
+      const response = await reviewDelete(reviewId);
+      router.push("/Ch08RestAPI/ExampleReview");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <section className="min-w-0 w-full rounded-lg border border-zinc-200 bg-white text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
@@ -98,7 +110,8 @@ export default function ReviewDetail() {
               <Link href={`/Ch08RestAPI/Exam01Review/ReviewUpdate?reviewId=${review.reviewId}`} className="rounded-lg border border-zinc-300 px-4 py-2 text-xs font-semibold transition hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800">
                 수정하기
               </Link>
-              <button type="button" className="rounded-lg border border-red-200 px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/40">
+              <button type="button" className="rounded-lg border border-red-200 px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/40"
+                onClick={handleDelete}>
                 삭제하기
               </button>
             </div>
